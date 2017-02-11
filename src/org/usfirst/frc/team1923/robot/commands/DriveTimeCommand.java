@@ -12,8 +12,11 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public class DriveTimeCommand extends Command {
 
-    public DriveTimeCommand( int time ) {
+	double left = 0, right = 0;
+    public DriveTimeCommand( double leftSpeed, double rightSpeed ,double time ) {
         requires(Robot.driveSubSystem);
+        left = leftSpeed;
+        right = rightSpeed;
         setTimeout(time);
     }
 
@@ -23,7 +26,7 @@ public class DriveTimeCommand extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.driveSubSystem.drive(0.25, 0.25, CANTalon.TalonControlMode.PercentVbus);
+    	Robot.driveSubSystem.drive(left, right, CANTalon.TalonControlMode.PercentVbus);
     }
 
     // Make this return true when this Command no longer needs to run execute()
