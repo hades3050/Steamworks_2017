@@ -10,6 +10,7 @@ import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
@@ -17,7 +18,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class DrivetrainSubsystem extends Subsystem {
 
-	private static final double P_CONSTANT = 0; // TODO: Fill in these values
+	private static final double P_CONSTANT = 0.5; // TODO: Fill in these values
 	private static final double I_CONSTANT = 0;
 	private static final double D_CONSTANT = 0;
 	private static final double F_CONSTANT = 0;
@@ -26,10 +27,16 @@ public class DrivetrainSubsystem extends Subsystem {
 	private static final boolean RIGHT_REVERSED = false;
 	private static final int MAX_SAFE_SHIFT_SPEED = 100; // RPM
 
+	private static final double WHEEL_DIAMETER = 4;
+	private static final double WHEEL_CIRCUMFRENCE = WHEEL_DIAMETER * Math.PI;
+	private static final double COUNTS_PER_ROTATION = 4096;
+	
+	public final double ENCODER_ERROR_MARGIN = 200;
+	
 	// Arrays of talons to group them together
 	// The 0th element will always be the master Talon, the subsequent ones will
 	// follow
-	private CANTalon[] leftTalons, rightTalons;
+	public CANTalon[] leftTalons, rightTalons;
 
 	private DoubleSolenoid shifter;
 	private DoubleSolenoid shiftOmnis;
@@ -39,7 +46,7 @@ public class DrivetrainSubsystem extends Subsystem {
 	public DrivetrainSubsystem() {
 		leftTalons = new CANTalon[RobotMap.LEFT_DRIVE_PORTS.length];
 		rightTalons = new CANTalon[RobotMap.RIGHT_DRIVE_PORTS.length];
-
+		
 		for (int i = 0; i < RobotMap.LEFT_DRIVE_PORTS.length; i++) {
 			leftTalons[i] = new CANTalon(RobotMap.LEFT_DRIVE_PORTS[i]);
 		}
@@ -47,13 +54,21 @@ public class DrivetrainSubsystem extends Subsystem {
 		for (int i = 0; i < RobotMap.RIGHT_DRIVE_PORTS.length; i++) {
 			rightTalons[i] = new CANTalon(RobotMap.RIGHT_DRIVE_PORTS[i]);
 		}
-
-		shifter = new DoubleSolenoid(RobotMap.PCM_MODULE_NUM, RobotMap.SHIFT_FORWARD_PORT,
-				RobotMap.SHIFT_BACKWARD_PORT);
+		
+//		leftTalons[0].setEncPosition(0);
+//		rightTalons[0].setEncPosition(0);
+		
+		shifter = new DoubleSolenoid(RobotMap.PCM_MODULE_NUM, RobotMap.SHIFT_FORWARD_PORT, RobotMap.SHIFT_BACKWARD_PORT);
 		shiftOmnis = new DoubleSolenoid(RobotMap.PCM_MODULE_NUM, RobotMap.OMNI_FORWARD_PORT, RobotMap.OMNI_BACKWARD_PORT);
 		setToFollow();
 		configPID();
 		drive(0, 0, TalonControlMode.PercentVbus);
+
+		leftTalons[0].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+		rightTalons[0].setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+		
+		leftTalons[0].setAllowableClosedLoopErr((int)ENCODER_ERROR_MARGIN);
+		rightTalons[0].setAllowableClosedLoopErr((int)ENCODER_ERROR_MARGIN);
 	}
 	// Put methods for controlling this subsystem
 	// here. Call these from Commands.
@@ -119,8 +134,15 @@ public class DrivetrainSubsystem extends Subsystem {
 
 		rightTalons[0].set(0.0);
 		rightTalons[0].reverseOutput(RIGHT_REVERSED);
+		
+		enableControl();
 	}
 
+	public void enableControl()
+	{
+		leftTalons[0].enableControl();
+		rightTalons[0].enableControl();
+	}
 	/**
 	 * Directly sets the input value of the motors
 	 * 
@@ -137,7 +159,7 @@ public class DrivetrainSubsystem extends Subsystem {
 	}
 
 	/**
-	 * Disables the closed-loop system and allows direct power setting
+	 * Disables all the drive Talons
 	 */
 	public void disable() {
 		setMasterToMode(TalonControlMode.Disabled);
@@ -167,8 +189,18 @@ public class DrivetrainSubsystem extends Subsystem {
 	 * simplify autons by resetting the home position of the robot
 	 */
 	public void resetPosition() {
-		leftTalons[0].setPosition(0);
-		rightTalons[0].setPosition(0);
+		leftTalons[0].setEncPosition(0);
+		rightTalons[0].setEncPosition(0);
+	}
+	
+	public boolean hasReachedLeftDistance( double leftDistance )
+	{
+		return leftTalons[0].getEncPosition() / COUNTS_PER_ROTATION * WHEEL_CIRCUMFRENCE >= leftDistance;
+	}
+	
+	public boolean hasReachedRightDistance( double rightDistance )
+	{
+		return rightTalons[0].getEncPosition() / COUNTS_PER_ROTATION * WHEEL_CIRCUMFRENCE>= rightDistance;
 	}
 
 	public void initDefaultCommand() {

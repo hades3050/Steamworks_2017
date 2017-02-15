@@ -1,7 +1,9 @@
 
 package org.usfirst.frc.team1923.robot;
 
-import org.usfirst.frc.team1923.robot.commands.EmptyCommand;
+import org.usfirst.frc.team1923.robot.commands.DriveTimeCommand;
+import org.usfirst.frc.team1923.robot.commands.EncoderDriveCommand;
+import org.usfirst.frc.team1923.robot.commands.RawDriveCommand;
 import org.usfirst.frc.team1923.robot.subsystems.DrivetrainSubsystem;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -36,7 +38,7 @@ public class Robot extends IterativeRobot {
 		// Initialize all the subsystems and OI.
 		driveSubSystem = new DrivetrainSubsystem();
 		oi = new OI();
-		chooser.addDefault("Default Auto", new EmptyCommand());
+		chooser.addDefault("Default Auto", new EncoderDriveCommand(20000, 0.25));
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", chooser);
 	}
@@ -106,6 +108,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		Scheduler.getInstance().add(new RawDriveCommand());
 		Scheduler.getInstance().run();
 	}
 
