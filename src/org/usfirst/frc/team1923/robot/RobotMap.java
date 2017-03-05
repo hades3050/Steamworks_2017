@@ -55,9 +55,9 @@ public class RobotMap {
 	 */
 
 	// Ultrasonic Sensor DIO ports
-	public static final int FRONT_SONAR_PING_PORT = 0;
-	public static final int FRONT_SONAR_ECHO_PORT = 1; // UNITS declared in
-														// constructor in drive
-														// subsystem
+	public static final int LEFT_ULTRASONIC_IN = 0;
+	public static final int LEFT_ULTRASONIC_OUT = 1; 
+	public static final int RIGHT_ULTRASONIC_IN = 2;
+	public static final int RIGHT_ULTRASONIC_OUT = 3;
 
 }

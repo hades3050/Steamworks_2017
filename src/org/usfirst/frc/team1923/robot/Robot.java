@@ -3,10 +3,11 @@ package org.usfirst.frc.team1923.robot;
 
 import org.usfirst.frc.team1923.robot.commands.EmptyCommand;
 import org.usfirst.frc.team1923.robot.commands.driveCommands.DriveDistanceCommand;
+import org.usfirst.frc.team1923.robot.commands.driveCommands.UltrasonicAlignCommand;
 import org.usfirst.frc.team1923.robot.subsystems.ClimberSubsystem;
 import org.usfirst.frc.team1923.robot.subsystems.DrivetrainSubsystem;
 import org.usfirst.frc.team1923.robot.subsystems.GearSubsystem;
-
+import org.usfirst.frc.team1923.robot.subsystems.UltrasonicSubsystem;
 import org.usfirst.frc.team1923.robot.OI;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,6 +31,7 @@ public class Robot extends IterativeRobot {
 	public static DrivetrainSubsystem driveSubSys;
 	public static ClimberSubsystem climbSubSys;
 	public static GearSubsystem gearSubSys;
+	public static UltrasonicSubsystem ultrasonicSubSys;
 	public static OI oi;
 
 	Command autonomousCommand;
@@ -47,10 +49,12 @@ public class Robot extends IterativeRobot {
 		gearSubSys = new GearSubsystem();
 		driveSubSys = new DrivetrainSubsystem();
 		climbSubSys = new ClimberSubsystem();
+		ultrasonicSubSys = new UltrasonicSubsystem();
 		oi = new OI();
 
 		chooser.addDefault("Default Auto", new EmptyCommand());
 		chooser.addObject("Drive 50 inches", new DriveDistanceCommand(50, 50));
+		chooser.addObject("Ultrasonic Align", new UltrasonicAlignCommand());
 
 		// if (driverStation.getAlliance().equals(Alliance.Blue)) {
 		// // TODO: Add blue autons

@@ -34,7 +34,7 @@ public class ClimberSubsystem extends Subsystem {
 		// Sets up the follower relationship
 		rightClimb.changeControlMode(TalonControlMode.Follower);
 		rightClimb.reverseOutput(true); // Because the motors are against
-										// eachother
+										// each other
 		rightClimb.set(leftClimb.getDeviceID());
 
 		leftClimb.configPeakOutputVoltage(12, -12);
